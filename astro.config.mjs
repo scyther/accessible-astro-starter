@@ -9,7 +9,7 @@ import tailwindcss from '@tailwindcss/vite'
 // https://astro.build/config
 export default defineConfig({
   compressHTML: true,
-  site: 'https://accessible-astro-starter.incluud.dev',
+  site: 'https://www.devcase.in',
   integrations: [compress(), icon(), mdx(), sitemap()],
   vite: {
     css: {
@@ -32,6 +32,7 @@ export default defineConfig({
         '@public': fileURLToPath(new URL('./public', import.meta.url)),
         '@post-images': fileURLToPath(new URL('./public/posts', import.meta.url)),
         '@project-images': fileURLToPath(new URL('./public/projects', import.meta.url)),
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
       },
     },
   },

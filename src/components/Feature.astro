@@ -16,12 +16,17 @@ interface Props {
    * The title to display
    */
   title: string
+  /**
+   * Optional URL to navigate to when clicked
+   */
+  href?: string
 }
 
-const { icon = 'mdi:rocket', title = 'Title' }: Props = Astro.props
+const { icon = 'mdi:rocket', title = 'Title', href }: Props = Astro.props
+const Tag = href ? 'a' : 'div'
 ---
 
-<div class="feature flex flex-col gap-4">
+<Tag href={href} class="feature flex flex-col gap-4" {...(href && { target: '_blank', rel: 'noopener noreferrer' })}>
   <Icon aria-hidden="true" name={icon} />
   <div class="content">
     <Heading level="h3" size="h6" class="mb-2">{title}</Heading>
@@ -29,7 +34,7 @@ const { icon = 'mdi:rocket', title = 'Title' }: Props = Astro.props
       <slot>Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic, corporis.</slot>
     </p>
   </div>
-</div>
+</Tag>
 
 <style lang="scss">
   @use '../assets/scss/base/breakpoint' as *;
@@ -38,6 +43,9 @@ const { icon = 'mdi:rocket', title = 'Title' }: Props = Astro.props
     position: relative;
     padding: var(--space-l);
     inline-size: calc(100% - var(--space-l));
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 
     > * {
       position: relative;
@@ -71,14 +79,34 @@ const { icon = 'mdi:rocket', title = 'Title' }: Props = Astro.props
     }
   }
 
+  a.feature:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+
   :global(.feature [data-icon]) {
     inline-size: 4rem;
     block-size: auto;
     color: var(--link-color);
   }
 
-  :global(.darkmode .feature::before) {
-    box-shadow: 0 0 0 6px var(--color-neutral-900);
-    background-color: var(--color-neutral-900);
+  :global(.darkmode .feature) {
+    &::before {
+      box-shadow: 0 0 0 6px var(--color-neutral-900);
+      border-color: var(--color-neutral-600);
+      background-color: var(--color-neutral-900);
+    }
+
+    &::after {
+      background-color: rgba(var(--link-color-rgb), 0.8);
+    }
+
+    [data-icon] {
+      color: #60a5fa;
+    }
+  }
+
+  :global(.darkmode a.feature:hover) {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   }
 </style>

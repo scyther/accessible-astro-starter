@@ -1,0 +1,286 @@
+---
+title: Setting Up Bun in WSL and Developing with VS Code Remote Server
+author: Chirag Sharma
+description: A complete guide to installing Bun on Windows Subsystem for Linux (WSL) and using VS Code Remote Server for rapid Bun application development
+tags: ["Bun", "WSL", "Development Setup", "VS Code", "Guide"]
+---
+
+import BlockQuote from '@components/BlockQuote.astro'
+import BreakoutImage from '@components/BreakoutImage.astro'
+import { Image } from 'astro:assets'
+
+<BreakoutImage src="/projects/project-image-1.png" />
+## Introduction
+
+Bun is a modern JavaScript runtime that's faster than Node.js, with built-in TypeScript support, a package manager, and a test runner. Setting it up in WSL (Windows Subsystem for Linux) gives you access to a powerful development environment on Windows without sacrificing the benefits of a Linux-based workflow.
+
+## Why Bun?
+
+Before diving into the setup, let's understand why Bun is worth your time:
+
+- **Speed**: Bun is approximately 3x faster than Node.js for many operations
+- **All-in-one**: Package manager, test runner, and runtime combined
+- **Native TypeScript**: No need for `ts-node` or complex build configurations
+- **Drop-in replacement**: Works as a drop-in replacement for Node.js in most cases
+- **Excellent developer experience**: Built with modern web development in mind
+
+## Prerequisites
+
+Before starting, ensure you have:
+
+1. Windows 10 (Build 19041 or higher) or Windows 11
+2. VS Code installed on Windows
+
+<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+  <Image
+    src="/projects/project-image-1.png"
+    alt="Smart home assistant interface showing voice command visualization"
+    width={1200}
+    height={600}
+    class="h-[250px] w-full rounded-lg object-cover"
+  />
+  <Image
+    src="/projects/project-image-2.png"
+    alt="User interacting with the smart home system via voice commands"
+    width={1200}
+    height={600}
+    class="h-[250px] w-full rounded-lg object-cover"
+  />
+  <Image
+    src="/projects/project-image-3.png"
+    alt="Haptic feedback device component of the smart home system"
+    width={1200}
+    height={600}
+    class="h-[250px] w-full rounded-lg object-cover"
+  />
+  <Image
+    src="/projects/project-image-4.png"
+    alt="Dashboard showing analytics of voice command usage patterns"
+    width={1200}
+    height={600}
+    class="h-[250px] w-full rounded-lg object-cover"
+  />
+</div>
+
+## Step 1: Verify and Update WSL
+
+First, ensure WSL is running and up-to-date. Open PowerShell as Administrator and run:
+
+```bash
+# Check WSL version
+wsl --list --verbose
+```
+
+If not already installed:
+
+```bash# Install WSL
+# Install WSL
+wsl --install
+```
+
+The output should show your WSL version and that you're using WSL 2.
+
+## Step 2: Open WSL Terminal
+
+Once WSL is verified, open your WSL terminal (WSL Ubuntu or your chosen distribution):
+
+```bash
+wsl
+```
+
+Or directly from Windows Terminal by selecting your WSL distribution.
+
+## Step 3: Update System Packages
+
+Before installing Bun, update your system packages:
+
+```bash
+sudo apt update && sudo apt upgrade -y
+```
+
+This ensures all dependencies are current and you have the latest security patches.
+
+## Step 4: Install Bun
+
+Bun provides an official installation script. Run:
+
+```bash
+curl -fsSL https://bun.sh/install | bash
+```
+
+This script will:
+- Download the latest version of Bun
+- Install it in `~/.bun/bin`
+- Automatically update your PATH if needed
+
+<BlockQuote>
+The installation script is safe and verified by the Bun team. You can review it before running if desired.
+</BlockQuote>
+
+## Step 5: Verify Installation
+
+After installation completes, close and reopen your terminal, then verify Bun is properly installed:
+
+```bash
+bun --version
+```
+
+You should see a version number like `1.0.0` or higher.
+
+## Step 6: Set Up Your First Bun Project
+
+Create a new directory for your project:
+
+```bash
+mkdir my-bun-app
+cd my-bun-app
+```
+
+Initialize a new Bun project:
+
+```bash
+bun init -y
+```
+
+This creates a `package.json` file with the following contents:
+
+```json
+{
+  "name": "my-bun-app",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {}
+}
+```
+
+Create an `index.ts` file:
+
+```typescript
+console.log("Hello from Bun! 🎉");
+```
+
+Run it with Bun:
+
+```bash
+bun run index.ts
+```
+
+You should see: `Hello from Bun! 🎉`
+
+
+
+## Step 7: Connect VS Code to WSL
+
+
+
+Navigate to your `my-bun-app` directory and open it, then run:
+```bash
+code .
+```
+to open VS Code connected to your WSL environment. All terminal commands will now run natively in your Linux environment.
+
+<BlockQuote>
+When working in WSL from VS Code, all terminal commands run natively in Linux, and you get full access to your WSL filesystem and installed tools like Bun.
+</BlockQuote>
+
+## Step 8: Install VS Code Extensions
+
+Install the following essential extensions in VS Code:
+
+- **Remote - WSL**: This allows VS Code to work seamlessly with WSL
+
+You'll need to install your favorite extensions within WSL, even if they're already installed on Windows, since they run in different environments.
+
+## Step 9: Set Up a Web Server with Bun
+
+For development purposes, let's create a simple HTTP server. Update your `index.ts`:
+
+```typescript
+const server = Bun.serve({
+  port: 3000,
+  fetch(req) {
+    const url = new URL(req.url);
+    
+    if (url.pathname === "/") {
+      return new Response("Hello from Bun Server! 🚀", {
+        headers: { "Content-Type": "text/plain" }
+      });
+    }
+    
+    if (url.pathname === "/api/status") {
+      return Response.json({ status: "ok", time: new Date() });
+    }
+    
+    return new Response("Not Found", { status: 404 });
+  }
+});
+
+console.log(`Server running on http://localhost:${server.port}`);
+```
+
+Run the server:
+
+```bash
+bun run index.ts
+```
+
+Your server should be accessible at `http://localhost:3000` from your Windows browser.
+
+
+
+## Best Practices for Bun Development in WSL
+
+### 1. Use TypeScript Natively
+
+Bun runs TypeScript files directly without compilation:
+
+```bash
+bun run myfile.ts
+```
+
+### 2. Install Dependencies with Bun
+
+```bash
+bun add express
+bun add -d @types/express
+```
+
+### 3. Use bun.lock for Dependency Management
+
+Bun creates a lockfile automatically:
+
+```bash
+bun install
+```
+
+Always commit `bun.lock` to version control.
+
+### 4. Leverage Hot Reload
+
+Use the `--watch` flag for development:
+
+```bash
+bun run --watch index.ts
+```
+
+### 5. Performance Testing
+
+Benchmark your code using Bun's built-in capabilities:
+
+```typescript
+console.time("test");
+// Your code here
+console.timeEnd("test");
+```
+
+## Conclusion
+
+Setting up Bun in WSL combined with VS Code  gives you a powerful, modern development environment that leverages the best of both Windows and Linux worlds. The setup is straightforward, and you'll immediately notice the performance improvements Bun offers.
+
+Start building amazing applications with Bun today! 🚀
+
+## Resources
+
+- [Bun Official Documentation](https://bun.sh)
+- [WSL Official Documentation](https://docs.microsoft.com/en-us/windows/wsl/)
+- [VS Code Remote Development](https://code.visualstudio.com/docs/remote/remote-overview)

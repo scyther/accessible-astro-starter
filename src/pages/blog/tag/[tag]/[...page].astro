@@ -16,20 +16,20 @@ import projectImage5 from '@assets/images/projects/project-image-5.png'
 import projectImage6 from '@assets/images/projects/project-image-6.png'
 
 export const getStaticPaths = (async ({ paginate }) => {
-  const projects = await getCollection('projects')
-  const allTags = projects.map((project) => project.data.tags).flat()
+  const blogs = await getCollection('blogs')
+  const allTags = blogs.map((blog) => blog.data.tags).flat()
   const uniqueTagLabels = [...new Set(allTags)].sort((a, b) => a.localeCompare(b))
   const uniqueTags = uniqueTagLabels.map((label) => ({
     label,
     slug: slugify(label),
   }))
 
-  const projectImages = [projectImage1, projectImage2, projectImage3, projectImage4, projectImage5, projectImage6]
+  const blogImages = [projectImage1, projectImage2, projectImage3, projectImage4, projectImage5, projectImage6]
 
-  const projectsWithImages = projects.map((project, index) => {
+  const blogsWithImages = blogs.map((blog, index) => {
     return {
-      ...project,
-      featuredImage: projectImages[index % projectImages.length],
+      ...blog,
+      featuredImage: blogImages[index % blogImages.length],
     }
   })
 
@@ -37,11 +37,11 @@ export const getStaticPaths = (async ({ paginate }) => {
   const allPaginatedPages = []
 
   for (const tag of uniqueTags) {
-    const filteredProjects = projectsWithImages.filter((project) =>
-      project.data.tags.map((tag) => slugify(tag)).includes(tag.slug),
+    const filteredBlogs = blogsWithImages.filter((blog) =>
+      blog.data.tags.map((tag) => slugify(tag)).includes(tag.slug),
     )
 
-    const paginatedPages = paginate(filteredProjects, {
+    const paginatedPages = paginate(filteredBlogs, {
       pageSize: 6,
       params: { tag: tag.slug },
       props: {
@@ -57,7 +57,7 @@ export const getStaticPaths = (async ({ paginate }) => {
 }) satisfies GetStaticPaths
 
 interface Props {
-  page: Page<CollectionEntry<'projects'> & { featuredImage: any }>
+  page: Page<CollectionEntry<'blogs'> & { featuredImage: any }>
   currentTag: { label: string; slug: string }
   uniqueTags: { label: string; slug: string }[]
 }
@@ -66,12 +66,12 @@ const { page, currentTag, uniqueTags } = Astro.props
 ---
 
 <DefaultLayout
-  title={`Portfolio - ${currentTag.label}`}
-  description={`Projects filtered by ${currentTag.label} tag. Discover our work in ${currentTag.label} and related technologies.`}
+  title={`Blog - ${currentTag.label}`}
+  description={`Blog posts filtered by ${currentTag.label} tag. Read our articles about ${currentTag.label} and related topics.`}
 >
   <PageHeader
-    title={`Portfolio: ${currentTag.label}`}
-    subtitle={`Showing ${page.total} project${page.total !== 1 ? 's' : ''} tagged with "${currentTag.label}". <a href="/portfolio">View all projects</a> or filter by other tags below.`}
+    title={`Blog: ${currentTag.label}`}
+    subtitle={`Showing ${page.total} post${page.total !== 1 ? 's' : ''} tagged with "${currentTag.label}". <a href="/blog">View all posts</a> or filter by other tags below.`}
     bgType="bordered"
     customBreadcrumbLabels={{
       [currentTag.slug]: currentTag.label,
@@ -82,46 +82,46 @@ const { page, currentTag, uniqueTags } = Astro.props
     <div class="container">
       <Heading level="h2" size="h5" class="mb-2">Tags</Heading>
       <div class="flex flex-wrap gap-4">
-        <Link href="/portfolio">All projects</Link>
+        <Link href="/blog">All posts</Link>
         {
           uniqueTags.map((tag: { label: string; slug: string }) => {
             const isCurrentTag = tag.slug === currentTag.slug
             return isCurrentTag ? (
-              <Link href={'/portfolio/tag/' + tag.slug} disabled class="disabled">
+              <Link href={'/blog/tag/' + tag.slug} disabled class="disabled">
                 {tag.label}
               </Link>
             ) : (
-              <Link href={'/portfolio/tag/' + tag.slug}>{tag.label}</Link>
+              <Link href={'/blog/tag/' + tag.slug}>{tag.label}</Link>
             )
           })
         }
       </div>
       <p class="mt-8 text-sm">
         <em
-          >Project {page.start + 1} through {page.end + 1} of {page.total} total projects tagged with "{
+          >Post {page.start + 1} through {page.end + 1} of {page.total} total posts tagged with "{
             currentTag.label
           }"</em
         >
       </p>
       <ul class="mt-3 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {
-          page.data.map((project) => (
+          page.data.map((blog) => (
             <li>
               <Card
-                imageComponent={project.featuredImage}
-                url={'/portfolio/' + project.id}
-                title={project.data.title}
+                imageComponent={blog.featuredImage}
+                url={'/blog/' + blog.id}
+                title={blog.data.title}
                 headingLevel="h2"
-                footer={'Author: ' + project.data.author}
+                footer={'Author: ' + blog.data.author}
                 fullHeight={true}
               >
                 <span slot="meta">
-                  {project.data.tags.map((tag) => {
+                  {blog.data.tags.map((tag) => {
                     const isCurrentTag = tag === currentTag.label
                     return isCurrentTag ? <Badge class="bg-blue-600 text-white">{tag}</Badge> : <Badge>{tag}</Badge>
                   })}
                 </span>
-                {project.data.description}
+                {blog.data.description}
               </Card>
             </li>
           ))
@@ -133,13 +133,13 @@ const { page, currentTag, uniqueTags } = Astro.props
         page && page.lastPage > 1 && (
           <div class="mt-12 grid place-content-center">
             <Pagination
-              firstPage={page.url.prev ? `/portfolio/tag/${currentTag.slug}` : null}
+              firstPage={page.url.prev ? `/blog/tag/${currentTag.slug}` : null}
               previousPage={page.url.prev ? page.url.prev : null}
               nextPage={page.url.next ? page.url.next : null}
-              lastPage={page.url.next ? `/portfolio/tag/${currentTag.slug}/${page.lastPage}` : null}
+              lastPage={page.url.next ? `/blog/tag/${currentTag.slug}/${page.lastPage}` : null}
               currentPage={`${page.currentPage}`}
               totalPages={`${page.lastPage}`}
-              ariaLabel={`${currentTag.label} portfolio pagination`}
+              ariaLabel={`${currentTag.label} blog pagination`}
             />
           </div>
         )

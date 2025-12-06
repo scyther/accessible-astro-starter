@@ -1,0 +1,75 @@
+---
+import DefaultLayout from '@layouts/DefaultLayout.astro'
+import PageHeader from '@components/PageHeader.astro'
+import SocialShares from '@components/SocialShares.astro'
+import { Heading } from 'accessible-astro-components'
+import { getCollection, render } from 'astro:content'
+import type { CollectionEntry } from 'astro:content'
+
+export async function getStaticPaths() {
+  const blogs = await getCollection('blogs')
+
+  const blogImages = [
+    { src: '/posts/post-image-1.png' },
+    { src: '/posts/post-image-2.png' },
+    { src: '/posts/post-image-3.png' },
+    { src: '/posts/post-image-4.png' },
+    { src: '/posts/post-image-5.png' },
+    { src: '/posts/post-image-6.png' },
+  ]
+
+  return blogs.map((blog, index) => {
+    const blogWithImage = {
+      ...blog,
+      featuredImage: blogImages[index % blogImages.length].src,
+    }
+
+    return {
+      params: { project: blog.id },
+      props: { blog: blogWithImage },
+    }
+  })
+}
+
+interface Props {
+  blog: CollectionEntry<'blogs'> & { featuredImage: string }
+}
+
+const { blog } = Astro.props
+const { Content } = await render(blog)
+
+const author = {
+  name: blog.data.author,
+  image: '/posts/post-image-1.png',
+  bio: 'Blog Author',
+}
+---
+
+<DefaultLayout title={blog.data.title} description={blog.data.description} url={`/blog/${blog.id}`}>
+  <PageHeader
+    title={blog.data.title}
+    subtitle={blog.data.description}
+    author={author}
+    bgType="bordered"
+    featuredImage={blog.featuredImage}
+  />
+  <section class="my-12">
+    <div class="narrow space-content container">
+      <Content />
+    </div>
+  </section>
+  <section class="my-12">
+    <div class="narrow space-content container">
+      <Heading level="h2">Share this post</Heading>
+      <p>Like this post? Share it with your network!</p>
+      <SocialShares />
+    </div>
+  </section>
+</DefaultLayout>
+
+<style lang="scss" is:global>
+  .narrow {
+    margin-inline: auto;
+    max-width: 65ch;
+  }
+</style>
